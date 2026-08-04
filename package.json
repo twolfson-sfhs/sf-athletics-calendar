@@ -1,0 +1,10 @@
+{
+  "name": "sf-athletics-netlify-calendar",
+  "version": "1.0.0",
+  "private": true,
+  "description": "St. Francis Athletics next-30-events display for Netlify",
+  "engines": {"node": ">=20"},
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}
