@@ -1,37 +1,25 @@
-# St. Francis Athletics Calendar — Netlify Version
+# St. Francis Athletics Calendar — Fixed 1920×1080 TV Version
 
-This is the permanent Netlify-ready version of the 60-inch TV display.
+This version always renders a fixed 1920×1080 digital-signage board with exactly five columns and six rows. It then scales the entire board to fit the browser viewport. Browser zoom is not required.
 
-## What it does
+## Updating the existing Netlify site
 
-- Shows only the next 30 verified events.
-- Pulls official schedule pages from gogoldenknights.net.
-- Checks Varsity, JV, and Frosh source routes.
-- Refreshes the TV page every 60 seconds.
-- Uses Netlify's CDN cache so the athletics site is normally checked only every five minutes.
-- Never displays sample events when a source fails.
+Replace the files in your GitHub repository with the files from this package and commit the changes. Netlify will redeploy automatically.
 
-## Add the official logo
+The key public files are:
 
-Replace `public/assets/logo.png` with the official transparent PNG. Keep the filename exactly `logo.png`.
+- `public/index.html`
+- `public/styles.css`
+- `public/app.js`
 
-## Recommended deployment: GitHub + Netlify
+## On Google TV
 
-Netlify must build the project so it can install the `cheerio` dependency and deploy the serverless function. A basic drag-and-drop HTML deployment is not enough for this live version.
+1. Open the Netlify website in TV Bro or JioPages/JioSphere.
+2. Keep browser zoom at its default.
+3. Use landscape mode.
+4. Hide the browser toolbar when possible.
+5. The page will automatically scale down to fit the available screen while preserving the full 5×6 grid.
 
-1. Create a new GitHub repository.
-2. Upload every file and folder in this package to the repository root.
-3. In Netlify, choose **Add new project > Import an existing project**.
-4. Choose GitHub and select the repository.
-5. Netlify will read `netlify.toml`; leave the detected settings unchanged.
-6. Choose **Deploy**.
-7. Open the supplied `.netlify.app` URL.
-8. Confirm real events appear and compare several against gogoldenknights.net.
+## Logo
 
-## Season updates
-
-The default season is `2026-27`. In Netlify, add an environment variable named `SEASON` when the school year changes, for example `2027-28`, and redeploy.
-
-## Google TV
-
-Open the Netlify address in a Google TV browser, bookmark it, set zoom to 100%, use full-screen mode, and disable the device sleep timer.
+Replace `public/assets/logo.png` with the official transparent St. Francis PNG and keep the same filename.

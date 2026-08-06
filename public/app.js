@@ -1,10 +1,20 @@
 'use strict';
+const stage = document.querySelector('#stage');
 const grid = document.querySelector('#grid');
 const clock = document.querySelector('#clock');
 const statusText = document.querySelector('#statusText');
 const footerStatus = document.querySelector('#footerStatus');
 const dot = document.querySelector('#dot');
 let lastGood = [];
+
+function fitStage() {
+  const baseWidth = 1920;
+  const baseHeight = 1080;
+  const safeWidth = Math.max(320, window.innerWidth - 8);
+  const safeHeight = Math.max(240, window.innerHeight - 8);
+  const scale = Math.min(safeWidth / baseWidth, safeHeight / baseHeight);
+  stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+}
 
 function esc(value) {
   return String(value || '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -17,6 +27,9 @@ function format(event) {
     time: event.tba ? 'TBA' : d.toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'})
   };
 }
+function cleanOpponent(value) {
+  return String(value || '').replace(/^vs\.?\s+vs\.?\s+/i, 'vs. ').replace(/^at\s+at\s+/i, 'at ');
+}
 function render(events) {
   if (!events.length) {
     grid.innerHTML = '<div class="empty">No verified upcoming events found.<small>The display will retry automatically. No sample events will be shown.</small></div>';
@@ -27,7 +40,7 @@ function render(events) {
     return `<article class="event-card">
       <div class="card-top"><span class="number">${String(index+1).padStart(2,'0')}</span><span class="date"><strong>${esc(f.weekday)}</strong> ${esc(f.day)}</span><span class="time">${esc(f.time)}</span></div>
       <div class="sport-row"><span class="sport">${esc(event.sport)}</span><span class="level">${esc(event.level)}</span></div>
-      <div class="opponent">${esc(event.opponent)}</div>
+      <div class="opponent">${esc(cleanOpponent(event.opponent))}</div>
       <div class="location">${esc(event.location || '')}</div>
       ${event.home ? '<span class="home">HOME</span>' : ''}
     </article>`;
@@ -61,6 +74,10 @@ function tick() {
   const now = new Date();
   clock.textContent = `${now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · ${now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`;
 }
-tick(); load();
+window.addEventListener('resize', fitStage);
+window.addEventListener('orientationchange', () => setTimeout(fitStage, 150));
+fitStage();
+tick();
+load();
 setInterval(tick, 1000);
 setInterval(load, 60000);

@@ -2,36 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#3b2416">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#f4efe6">
   <title>St. Francis Athletics — Next 30 Events</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=1080">
 </head>
 <body>
-  <header class="header">
-    <div class="brand">
-      <div class="logo-wrap">
-        <img id="schoolLogo" src="assets/logo.png" alt="St. Francis Golden Knights logo" onerror="this.classList.add('missing')">
-        <span class="logo-fallback">SF</span>
-      </div>
-      <div>
-        <p class="eyebrow">St. Francis High School</p>
-        <h1>Next 30 Athletic Events</h1>
-        <p class="subtitle">Varsity, JV and Frosh schedules in one place</p>
-      </div>
-    </div>
-    <div class="status">
-      <div id="clock" class="clock"></div>
-      <div class="live"><span id="dot" class="dot"></span><span id="statusText">Loading verified schedules…</span></div>
-    </div>
-  </header>
+  <div id="viewport">
+    <div id="stage" aria-label="St. Francis Athletics next 30 events display">
+      <header class="header">
+        <div class="brand">
+          <div class="logo-wrap">
+            <img id="schoolLogo" src="assets/logo.png" alt="St. Francis Golden Knights logo" onerror="this.classList.add('missing')">
+            <span class="logo-fallback">SF</span>
+          </div>
+          <div class="brand-copy">
+            <p class="eyebrow">St. Francis High School</p>
+            <h1>Next 30 Athletic Events</h1>
+            <p class="subtitle">Varsity, JV and Frosh schedules in one place</p>
+          </div>
+        </div>
+        <div class="status">
+          <div id="clock" class="clock"></div>
+          <div class="live"><span id="dot" class="dot"></span><span id="statusText">Loading verified schedules…</span></div>
+        </div>
+      </header>
 
-  <div id="notice" class="notice">Official events from gogoldenknights.net · display refreshes every 60 seconds</div>
-  <main id="grid" class="grid" aria-live="polite"></main>
-  <footer class="footer">
-    <span>Source: gogoldenknights.net</span>
-    <span id="footerStatus">Connecting…</span>
-  </footer>
-  <script src="app.js"></script>
+      <div id="notice" class="notice">Official events from gogoldenknights.net · display refreshes every 60 seconds</div>
+      <main id="grid" class="grid" aria-live="polite"></main>
+      <footer class="footer">
+        <span>Source: gogoldenknights.net</span>
+        <span id="footerStatus">Connecting…</span>
+      </footer>
+    </div>
+  </div>
+  <script src="app.js?v=1080"></script>
 </body>
 </html>
