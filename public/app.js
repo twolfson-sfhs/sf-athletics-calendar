@@ -30,6 +30,28 @@ function format(event) {
     time: event.tba ? 'TBA' : (event.displayTime || 'TBA')
   };
 }
+
+function sportIcon(sport) {
+  const name = String(sport || '').toLowerCase();
+  if (name.includes('football')) return '🏈';
+  if (name.includes('basketball')) return '🏀';
+  if (name.includes('soccer')) return '⚽';
+  if (name.includes('baseball')) return '⚾';
+  if (name.includes('volleyball')) return '🏐';
+  if (name.includes('water polo')) return '🏊';
+  if (name.includes('swim')) return '🏊';
+  if (name.includes('cross country')) return '🏃';
+  if (name.includes('track')) return '🏃';
+  if (name.includes('golf')) return '⛳';
+  if (name.includes('tennis')) return '🎾';
+  if (name.includes('lacrosse')) return '🥍';
+  if (name.includes('wrestling')) return '🤼';
+  return '★';
+}
+function sportClass(sport) {
+  return String(sport || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 function cleanOpponent(value) {
   return String(value || '').replace(/^vs\.?\s+vs\.?\s+/i, 'vs. ').replace(/^at\s+at\s+/i, 'at ');
 }
@@ -42,7 +64,7 @@ function render(events) {
     const f = format(event);
     return `<article class="event-card">
       <div class="card-top"><span class="number">${String(index+1).padStart(2,'0')}</span><span class="date"><strong>${esc(f.weekday)}</strong> ${esc(f.day)}</span><span class="time">${esc(f.time)}</span></div>
-      <div class="sport-row"><span class="sport">${esc(event.sport)}</span><span class="level">${esc(event.level)}</span></div>
+      <div class="sport-row"><span class="sport-icon sport-${esc(sportClass(event.sport))}" aria-hidden="true">${sportIcon(event.sport)}</span><span class="sport">${esc(event.sport)}</span><span class="level">${esc(event.level)}</span></div>
       <div class="opponent">${esc(cleanOpponent(event.opponent))}</div>
       <div class="location">${esc(event.location || '')}</div>
       ${event.home ? '<span class="home">HOME</span>' : ''}

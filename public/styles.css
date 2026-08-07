@@ -218,3 +218,30 @@ h1 {
   font-weight:700;
   white-space:nowrap;
 }
+
+/* Large, consistent sport markers for long-distance readability */
+.sport-icon {
+  flex:0 0 auto;
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:var(--brown);
+  border:2px solid var(--gold);
+  font-size:23px;
+  line-height:1;
+  box-shadow:0 1px 3px rgba(0,0,0,.16);
+}
+.sport-row .sport { font-size:23px; }
+.sport-football { background:#6b3f20; }
+.sport-basketball { background:#b46a1f; }
+.sport-soccer, .sport-mens-soccer { background:#2e6f42; }
+.sport-baseball { background:#a53b30; }
+.sport-volleyball { background:#315e91; }
+.sport-water-polo, .sport-swimming, .sport-swim-dive { background:#25658a; }
+.sport-cross-country, .sport-track-field { background:#9a5724; }
+.sport-golf { background:#386b36; }
+.sport-tennis { background:#758b28; }
+.sport-lacrosse { background:#604786; }
+.sport-wrestling { background:#7b3434; }
