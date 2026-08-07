@@ -62,12 +62,16 @@ function render(events) {
   }
   grid.innerHTML = events.slice(0,30).map((event, index) => {
     const f = format(event);
-    return `<article class="event-card">
+    const venueClass = event.home ? 'home-card' : 'away-card';
+    const venueBadge = event.home
+      ? '<span class="venue-badge home-badge">⌂ HOME</span>'
+      : '<span class="venue-badge away-badge">➜ AWAY</span>';
+    return `<article class="event-card ${venueClass}">
       <div class="card-top"><span class="number">${String(index+1).padStart(2,'0')}</span><span class="date"><strong>${esc(f.weekday)}</strong> ${esc(f.day)}</span><span class="time">${esc(f.time)}</span></div>
       <div class="sport-row"><span class="sport-icon sport-${esc(sportClass(event.sport))}" aria-hidden="true">${sportIcon(event.sport)}</span><span class="sport">${esc(event.sport)}</span><span class="level">${esc(event.level)}</span></div>
       <div class="opponent">${esc(cleanOpponent(event.opponent))}</div>
       <div class="location">${esc(event.location || '')}</div>
-      ${event.home ? '<span class="home">HOME</span>' : ''}
+      ${venueBadge}
     </article>`;
   }).join('');
 }

@@ -27,3 +27,7 @@ Replace `public/assets/logo.png` with the official transparent St. Francis PNG a
 ## Time handling fix
 
 This version preserves the exact time posted on gogoldenknights.net instead of converting the event through the Netlify server's UTC timezone. Dates are handled as date-only values and times are displayed verbatim, so a posted 4:00 PM event remains 4:00 PM on the television. TBA remains TBA.
+
+## Home/Away display update
+
+Home events use a light green card with a HOME badge. Away events use a light blue card with an AWAY badge. Sport icons are reduced in size so the sport name remains the visual focus.
