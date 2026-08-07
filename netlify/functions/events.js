@@ -36,19 +36,35 @@ function inferYear(month) {
 function parseDate(dateText, timeText) {
   const match = clean(dateText).match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\s+(\d{1,2})/i);
   if (!match) return null;
+
   const months = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,sept:8,oct:9,nov:10,dec:11};
   const month = months[match[1].toLowerCase()];
   const day = Number(match[2]);
+  const year = inferYear(month);
+
+  const rawTime = clean(timeText);
+  const time = rawTime.match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
   let hour = 12;
   let minute = 0;
   let tba = true;
-  const time = clean(timeText).match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
+  let displayTime = 'TBA';
+
   if (time) {
-    hour = Number(time[1]) % 12 + (time[3].toUpperCase() === 'PM' ? 12 : 0);
+    const hour12 = Number(time[1]);
     minute = Number(time[2] || 0);
+    const meridiem = time[3].toUpperCase();
+    hour = hour12 % 12 + (meridiem === 'PM' ? 12 : 0);
     tba = false;
+    displayTime = `${hour12}:${String(minute).padStart(2, '0')} ${meridiem}`;
   }
-  return { date: new Date(inferYear(month), month, day, hour, minute, 0, 0), tba };
+
+  // IMPORTANT: sortValue is a timezone-neutral wall-clock value used only for ordering.
+  // We deliberately do not convert the posted Pacific time into UTC, because doing so
+  // caused 4:00 PM to display as 9:00 AM on the television.
+  const sortValue = Date.UTC(year, month, day, hour, minute, 0, 0);
+  const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+  return { year, month, day, hour, minute, tba, displayTime, sortValue, dateKey };
 }
 
 function homeFrom(text, location) {
@@ -115,13 +131,15 @@ async function scrapeSource(source) {
 
     const location = clean(node.find('.sidearm-schedule-game-location, [class*="location"]').first().text());
     const relation = /\bat\b/i.test(text) ? 'at' : (/\bvs\.?\b/i.test(text) ? 'vs' : '');
-    const id = crypto.createHash('sha1').update(`${source.url}|${parsed.date.toISOString()}|${opponent}`).digest('hex').slice(0, 16);
+    const id = crypto.createHash('sha1').update(`${source.url}|${parsed.dateKey}|${parsed.displayTime}|${opponent}`).digest('hex').slice(0, 16);
 
     events.push({
       id,
       sport: source.sport,
       level: source.level,
-      date: parsed.date.toISOString(),
+      dateKey: parsed.dateKey,
+      sortValue: parsed.sortValue,
+      displayTime: parsed.displayTime,
       tba: parsed.tba,
       opponent: clean(`${relation} ${opponent}`),
       location,
@@ -147,17 +165,21 @@ exports.handler = async function handler() {
     results.push(...settled);
   }
 
-  const now = Date.now() - 2 * 60 * 60 * 1000;
+  const nowParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false
+  }).formatToParts(new Date()).reduce((acc, part) => { acc[part.type] = part.value; return acc; }, {});
+  const now = Date.UTC(Number(nowParts.year), Number(nowParts.month) - 1, Number(nowParts.day), Number(nowParts.hour), Number(nowParts.minute)) - 2 * 60 * 60 * 1000;
   const unique = new Map();
   for (const result of results) {
     for (const event of result.events) {
-      if (new Date(event.date).getTime() < now) continue;
-      unique.set(`${event.date}|${event.sport}|${event.level}|${event.opponent}`, event);
+      if (event.sortValue < now) continue;
+      unique.set(`${event.dateKey}|${event.displayTime}|${event.sport}|${event.level}|${event.opponent}`, event);
     }
   }
 
   const events = [...unique.values()]
-    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .sort((a, b) => a.sortValue - b.sortValue)
     .slice(0, MAX_EVENTS);
 
   const body = {

@@ -20,11 +20,14 @@ function esc(value) {
   return String(value || '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function format(event) {
-  const d = new Date(event.date);
+  // Parse the official calendar date as a date-only value in UTC so the day cannot
+  // shift based on the browser or device timezone. Display the posted time verbatim.
+  const parts = String(event.dateKey || '').split('-').map(Number);
+  const d = parts.length === 3 ? new Date(Date.UTC(parts[0], parts[1] - 1, parts[2])) : null;
   return {
-    weekday: d.toLocaleDateString('en-US', {weekday:'short'}),
-    day: d.toLocaleDateString('en-US', {month:'short',day:'numeric'}),
-    time: event.tba ? 'TBA' : d.toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'})
+    weekday: d ? d.toLocaleDateString('en-US', {weekday:'short', timeZone:'UTC'}) : '',
+    day: d ? d.toLocaleDateString('en-US', {month:'short',day:'numeric', timeZone:'UTC'}) : '',
+    time: event.tba ? 'TBA' : (event.displayTime || 'TBA')
   };
 }
 function cleanOpponent(value) {

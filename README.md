@@ -23,3 +23,7 @@ The key public files are:
 ## Logo
 
 Replace `public/assets/logo.png` with the official transparent St. Francis PNG and keep the same filename.
+
+## Time handling fix
+
+This version preserves the exact time posted on gogoldenknights.net instead of converting the event through the Netlify server's UTC timezone. Dates are handled as date-only values and times are displayed verbatim, so a posted 4:00 PM event remains 4:00 PM on the television. TBA remains TBA.
