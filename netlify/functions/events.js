@@ -7,7 +7,8 @@ const MAX_EVENTS = 30;
 
 const SOURCE_DEFS = [
   ['Football','Varsity','football'], ['Football','JV','jv-football'], ['Football','Frosh','frosh-football'],
-  ['Cross Country','Varsity','mens-cross-country'], ['Cross Country','JV','jv-cross-country'],
+  ['Cross Country','Varsity','mens-cross-country', `${BASE}/sports/mens-cross-country/schedule`],
+  ['Cross Country','JV','jv-cross-country', `${BASE}/sports/jv-cross-country/schedule`],
   ['Water Polo','Varsity','mens-water-polo'], ['Water Polo','JV','jv-water-polo'],
   ['Soccer','Varsity','mens-soccer'], ['Soccer','JV','jv-soccer'], ['Soccer','Frosh','frosh-soccer'],
   ['Basketball','Varsity','mens-basketball'], ['Basketball','JV','jv-basketball'], ['Basketball','Frosh','frosh-basketball'],
@@ -20,8 +21,8 @@ const SOURCE_DEFS = [
   ['Volleyball','Varsity','mens-volleyball'], ['Volleyball','JV','jv-volleyball'], ['Volleyball','Frosh','frosh-volleyball']
 ];
 
-const SOURCES = SOURCE_DEFS.map(([sport, level, slug]) => ({
-  sport, level, slug, url: `${BASE}/sports/${slug}/schedule/${SEASON}`
+const SOURCES = SOURCE_DEFS.map(([sport, level, slug, urlOverride]) => ({
+  sport, level, slug, url: urlOverride || `${BASE}/sports/${slug}/schedule/${SEASON}`
 }));
 
 function clean(value = '') {
@@ -106,6 +107,36 @@ function getEventNodes($) {
   return $();
 }
 
+
+function fallbackEventName(node, text, dateText, timeText, location) {
+  const candidates = [
+    node.find('.sidearm-schedule-game-opponent-text').first().text(),
+    node.find('.sidearm-schedule-game-opponent-name').first().text(),
+    node.find('.sidearm-schedule-game-event-name').first().text(),
+    node.find('[class*="event-name"]').first().text(),
+    node.find('[class*="opponent-text"]').first().text()
+  ].map(clean).filter(Boolean);
+  if (candidates.length) return candidates[0];
+
+  // Meet-style sports (Cross Country, Track, Golf, etc.) may not have an
+  // opponent field at all. Build a conservative title from the card text.
+  let remaining = clean(text);
+  for (const part of [dateText, timeText, location]) {
+    if (part) remaining = clean(remaining.replace(part, ' '));
+  }
+  remaining = clean(remaining
+    .replace(/\b(?:vs\.?|at)\b/ig, ' ')
+    .replace(/\b(?:Results?|History|Recap|Details)\b/ig, ' ')
+    .replace(/\s+/g, ' '));
+
+  // Remove duplicate location text if SIDEARM prints it twice.
+  if (location) {
+    const escaped = location.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    remaining = clean(remaining.replace(new RegExp(escaped, 'ig'), ' '));
+  }
+  return remaining;
+}
+
 async function scrapeSource(source) {
   const { html, finalUrl } = await fetchHtml(source.url);
   const $ = cheerio.load(html);
@@ -125,11 +156,11 @@ async function scrapeSource(source) {
     const parsed = parseDate(dateText, timeText);
     if (!parsed) return;
 
+    const location = clean(node.find('.sidearm-schedule-game-location, [class*="location"]').first().text());
     const opponent = clean(node.find('.sidearm-schedule-game-opponent-name, .sidearm-schedule-game-opponent-text, [class*="opponent-name"]').first().text())
-      || clean(node.find('a').first().text());
+      || fallbackEventName(node, text, dateText, timeText, location);
     if (!opponent) return;
 
-    const location = clean(node.find('.sidearm-schedule-game-location, [class*="location"]').first().text());
     const relation = /\bat\b/i.test(text) ? 'at' : (/\bvs\.?\b/i.test(text) ? 'vs' : '');
     const id = crypto.createHash('sha1').update(`${source.url}|${parsed.dateKey}|${parsed.displayTime}|${opponent}`).digest('hex').slice(0, 16);
 

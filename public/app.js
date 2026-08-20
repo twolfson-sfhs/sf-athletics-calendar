@@ -12,7 +12,7 @@ function fitStage() {
   const baseHeight = 1080;
   const safeWidth = Math.max(320, window.innerWidth - 8);
   const safeHeight = Math.max(240, window.innerHeight - 8);
-  const scale = Math.min(safeWidth / baseWidth, safeHeight / baseHeight);
+  const scale = Math.min(safeWidth / baseWidth, safeHeight / baseHeight) * 1.10;
   stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
 }
 
